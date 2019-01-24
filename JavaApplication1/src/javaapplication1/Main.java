@@ -55,24 +55,24 @@ public class Main {
         clusterList = cluster(numberOfClusters);
         System.out.println("Klastry");
         clusterList.forEach(c -> {
-            System.out.println("(" + c.getA() + ", " + c.getX() + ", " + c.getY() 
+            System.out.println("(" + c.getA() + ", " + c.getX() + ", " + c.getY()
                     + ", " + c.getZ() + ")");
         });
 
         while (true) {
-            boolean added = addPixelToCluster();
-            if (!isClusterEmpty() && added) {
+            addPixelToCluster();
+            if (!isClusterEmpty()) {
                 break;
             } else {
                 clusterList.clear();
-                cluster(numberOfClusters);
+                clusterList = cluster(numberOfClusters);
             }
         }
 
-        int i = 1;
+        int i = 0;
         while (clusterNotSameAsBefore()) {
             img = changeValuesOnImage(img);
-            String nazwa = "nowe" + String.valueOf(i++);
+            String nazwa = "nowe" + String.valueOf(++i);
             try {
                 ImageIO.write(img, "jpg", new File(nazwa + ".jpg"));
             } catch (IOException ex) {
@@ -93,9 +93,10 @@ public class Main {
 
         File imageAfter = new File("final.jpg");
         long sizeAfter = imageAfter.length();
-        System.out.println("Stary rozmiar: " + sizeBefore + " bajtów\nNowy rozmiar: " 
-                + sizeAfter + " bajtów\nW ilu % skompresowano: " 
-                + String.valueOf(100 - (100 * sizeAfter) / sizeBefore) + "%");
+        System.out.println("Stary rozmiar: " + sizeBefore + " bajtów\nNowy rozmiar: "
+                + sizeAfter + " bajtów\nW ilu % skompresowano: "
+                + String.valueOf(100 - (100 * sizeAfter) / sizeBefore) + "%" 
+                + "\nByło " + i + " iteracji optymalizacji klastrów");
     }
 
     /**
@@ -135,7 +136,7 @@ public class Main {
      */
     public static BufferedImage changeValuesOnImage(BufferedImage img) {
         pixelsList.forEach(p -> {
-            int newPixelValue = (p.getCluster().getA() << 24) | (p.getCluster().getX() << 16) 
+            int newPixelValue = (p.getCluster().getA() << 24) | (p.getCluster().getX() << 16)
                     | (p.getCluster().getY() << 8) | p.getCluster().getZ();
             img.setRGB(p.getX(), p.getY(), newPixelValue);
         });
@@ -147,11 +148,12 @@ public class Main {
      */
     public static boolean addPixelToCluster() {
         //TODO: set to maximum+1
-        try {
-            double minDistanceToCluster = 0;
-            ClusterCenter bestClusterForPixel = null;
-            for (int i = 0; i < pixelsList.size(); i++) {
-                Pixel pixel = pixelsList.get(i);
+
+        double minDistanceToCluster = 0;
+        ClusterCenter bestClusterForPixel = null;
+        for (int i = 0; i < pixelsList.size(); i++) {
+            Pixel pixel = pixelsList.get(i);
+            try {
                 minDistanceToCluster = distaneBetweenPixels(pixel, clusterList.get(0));
                 bestClusterForPixel = clusterList.get(0);
                 for (int j = 1; j < clusterList.size(); j++) {
@@ -163,12 +165,13 @@ public class Main {
                         minDistanceToCluster = distanceBetweenTwo;
                     }
                 }
-                pixel.setCluster(bestClusterForPixel);
+            } catch (IndexOutOfBoundsException ex) {
+                ex.printStackTrace();
+                return false;
             }
-        } catch (IndexOutOfBoundsException ex) {
-            ex.printStackTrace();
-            return false;
+            pixel.setCluster(bestClusterForPixel);
         }
+
         System.out.println("Klastry ustawione");
         return true;
     }
@@ -260,7 +263,7 @@ public class Main {
             img = ImageIO.read(new File("zdj.jpg"));
             int width = img.getWidth();
             int height = img.getHeight();
-            System.out.println("Rozdzielczość: " + height + "x" + width 
+            System.out.println("Rozdzielczość: " + height + "x" + width
                     + " , rozmiar: " + size() + " bajtów");
             for (int i = 0; i < height; i++) {
                 for (int j = 0; j < width; j++) {

@@ -28,7 +28,7 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 
 /**
- * Main class, this is where it begins
+ * Main class, this is where fun begins
  * @author Jakub Gurgacz
  */
 public class Main {

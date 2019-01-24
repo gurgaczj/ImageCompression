@@ -36,7 +36,7 @@ public class ClusterCenter {
         setX(x);
         setY(y);
         setZ(z);
-        System.out.println("Nowy klaster ("+getA()+", "+getX()+", "+getY()+", "+getZ()+")");
+        System.out.println("Nowy klaster ("+getA()+", "+getX()+", "+getY()+", "+getZ()+")\n");
     }
 
     public int getOldA() {

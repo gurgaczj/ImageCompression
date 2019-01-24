@@ -29,6 +29,7 @@ import javax.imageio.ImageIO;
 
 /**
  * Main class, this is where fun begins
+ *
  * @author Jakub Gurgacz
  */
 public class Main {
@@ -43,32 +44,33 @@ public class Main {
     public static void main(String[] args) throws IOException {
         File imageBefore = new File("zdj.jpg");
         long sizeBefore = imageBefore.length();
-        
-        int numberOfClusters = 32;
+
+        int numberOfClusters = 16;
         //TODO: clean code
         //TODO: write comments
         pixelsList = new ArrayList<>();
-        
+
         readPixels();
 
         clusterList = cluster(numberOfClusters);
         System.out.println("Klastry");
-        clusterList.forEach(e -> {
-            System.out.println("(" + e.getA() + ", " + e.getX() + ", " + e.getY() + ", " + e.getZ() + ")");
+        clusterList.forEach(c -> {
+            System.out.println("(" + c.getA() + ", " + c.getX() + ", " + c.getY() 
+                    + ", " + c.getZ() + ")");
         });
-        
-        while(true){
-            addPixelToCluster();
-            if(!isClusterEmpty()){
+
+        while (true) {
+            boolean added = addPixelToCluster();
+            if (!isClusterEmpty() && added) {
                 break;
             } else {
+                clusterList.clear();
                 cluster(numberOfClusters);
             }
         }
 
-        
         int i = 1;
-        while(clusterNotSameAsBefore()){
+        while (clusterNotSameAsBefore()) {
             img = changeValuesOnImage(img);
             String nazwa = "nowe" + String.valueOf(i++);
             try {
@@ -81,17 +83,19 @@ public class Main {
             addPixelToCluster();
 
         }
-        
+
         img = changeValuesOnImage(img);
-            try {
-                ImageIO.write(img, "jpg", new File("final.jpg"));
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        
+        try {
+            ImageIO.write(img, "jpg", new File("final.jpg"));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
         File imageAfter = new File("final.jpg");
         long sizeAfter = imageAfter.length();
-        System.out.println("Stary rozmiar: " + sizeBefore + "\nNowy rozmiar: " + sizeAfter + "\nRóżnica pomiędzy: " + String.valueOf((100*sizeAfter)/sizeBefore) + "%");
+        System.out.println("Stary rozmiar: " + sizeBefore + " bajtów\nNowy rozmiar: " 
+                + sizeAfter + " bajtów\nW ilu % skompresowano: " 
+                + String.valueOf(100 - (100 * sizeAfter) / sizeBefore) + "%");
     }
 
     /**
@@ -123,46 +127,55 @@ public class Main {
         }
     }
 
-    /** Returns image with changed pixel values.
-     * 
+    /**
+     * Returns image with changed pixel values.
+     *
      * @param img image on which we want to apply changes
      * @return image with changed pixel values
      */
     public static BufferedImage changeValuesOnImage(BufferedImage img) {
         pixelsList.forEach(p -> {
-            int newPixelValue = (p.getCluster().getA() << 24) | (p.getCluster().getX() << 16) | (p.getCluster().getY() << 8) | p.getCluster().getZ();
+            int newPixelValue = (p.getCluster().getA() << 24) | (p.getCluster().getX() << 16) 
+                    | (p.getCluster().getY() << 8) | p.getCluster().getZ();
             img.setRGB(p.getX(), p.getY(), newPixelValue);
         });
         return img;
     }
 
-    /** 
+    /**
      * Adds pixel to nearest cluster
      */
-    public static void addPixelToCluster() {
+    public static boolean addPixelToCluster() {
         //TODO: set to maximum+1
-        double minDistanceToCluster = 0;
-        ClusterCenter bestClusterForPixel = null;
-        for (int i = 0; i < pixelsList.size(); i++) {
-            Pixel pixel = pixelsList.get(i);
-            minDistanceToCluster = distaneBetweenPixels(pixel, clusterList.get(0));
-            bestClusterForPixel = clusterList.get(0);
-            for (int j = 1; j < clusterList.size(); j++) {
-                ClusterCenter cluster = clusterList.get(j);
+        try {
+            double minDistanceToCluster = 0;
+            ClusterCenter bestClusterForPixel = null;
+            for (int i = 0; i < pixelsList.size(); i++) {
+                Pixel pixel = pixelsList.get(i);
+                minDistanceToCluster = distaneBetweenPixels(pixel, clusterList.get(0));
+                bestClusterForPixel = clusterList.get(0);
+                for (int j = 1; j < clusterList.size(); j++) {
+                    ClusterCenter cluster = clusterList.get(j);
 
-                double distanceBetweenTwo = distaneBetweenPixels(pixel, clusterList.get(j));
-                if (distanceBetweenTwo < minDistanceToCluster) {
-                    bestClusterForPixel = cluster;
-                    minDistanceToCluster = distanceBetweenTwo;
+                    double distanceBetweenTwo = distaneBetweenPixels(pixel, clusterList.get(j));
+                    if (distanceBetweenTwo < minDistanceToCluster) {
+                        bestClusterForPixel = cluster;
+                        minDistanceToCluster = distanceBetweenTwo;
+                    }
                 }
+                pixel.setCluster(bestClusterForPixel);
             }
-            pixel.setCluster(bestClusterForPixel);
+        } catch (IndexOutOfBoundsException ex) {
+            ex.printStackTrace();
+            return false;
         }
         System.out.println("Klastry ustawione");
+        return true;
     }
 
     /**
      * Returns distance between cluster and pixel
+     *
      * @param pixel given pixel
      * @param cluster given cluster
      * @return distance between cluster and pixel
@@ -175,9 +188,10 @@ public class Main {
     }
 
     /**
-     * The function creates x clusters so that it takes the drawn pixel and copies 
-     * its values to the new cluster. This protects against the drawing of a 
-     * cluster that would be too far away from clusters.
+     * The function creates x clusters so that it takes the drawn pixel and
+     * copies its values to the new cluster. This protects against the drawing
+     * of a cluster that would be too far away from clusters.
+     *
      * @param numberOfClusters number of generated clusters
      * @return list of clusters
      */
@@ -220,9 +234,10 @@ public class Main {
         return bytes.length;
     }
 
-    /** Function get color from pixel and creates new Pixel object with given 
-     *  parameters.
-     * 
+    /**
+     * Function get color from pixel and creates new Pixel object with given
+     * parameters.
+     *
      * @param pixelColor color of a pixel
      * @param x x coordinate
      * @param y y coordinate
@@ -235,17 +250,18 @@ public class Main {
         //System.out.println("argb: " + alpha + ", " + red + ", " + green + ", " + blue);
         pixelsList.add(new Pixel(alpha, red, green, blue, x, y));
     }
-    
+
     /**
      * Reads pixels data from image
      */
-    public static void readPixels(){
+    public static void readPixels() {
         img = null;
         try {
             img = ImageIO.read(new File("zdj.jpg"));
             int width = img.getWidth();
             int height = img.getHeight();
-            System.out.println("Rozdzielczość: " + height + "x" + width + " , rozmiar: " + size() + " bajtów");
+            System.out.println("Rozdzielczość: " + height + "x" + width 
+                    + " , rozmiar: " + size() + " bajtów");
             for (int i = 0; i < height; i++) {
                 for (int j = 0; j < width; j++) {
                     int pixel = img.getRGB(j, i);
@@ -258,8 +274,9 @@ public class Main {
     }
 
     /**
-     * Checks if cluster is empty, which means that there are no pixels assigned 
+     * Checks if cluster is empty, which means that there are no pixels assigned
      * to any cluster
+     *
      * @return true - if any cluster is empty, false - if no
      */
     private static boolean isClusterEmpty() {
@@ -273,7 +290,7 @@ public class Main {
                 }
             }
             System.out.println("Klaster " + i + " ma " + counter + " pixeli");
-            if(counter == 0){
+            if (counter == 0) {
                 return true;
             }
         }
@@ -281,13 +298,16 @@ public class Main {
     }
 
     /**
-     * Checks if there was any changes in cluster rgb values after cluster optimization
-     * @return true - if cluster is not the same as before, false - if there was no changes
+     * Checks if there was any changes in cluster rgb values after cluster
+     * optimization
+     *
+     * @return true - if cluster is not the same as before, false - if there was
+     * no changes
      */
     private static boolean clusterNotSameAsBefore() {
         boolean result[] = {false};
         clusterList.forEach(c -> {
-            if(c.getX() != c.getOldX() || c.getY() != c.getOldY() || c.getZ() != c.getOldZ()){
+            if (c.getX() != c.getOldX() || c.getY() != c.getOldY() || c.getZ() != c.getOldZ()) {
                 result[0] = true;
                 return;
             }

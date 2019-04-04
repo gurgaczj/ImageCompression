@@ -15,7 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package javaapplication1;
+package imagecompression;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -39,13 +39,20 @@ public class Main {
     public static BufferedImage img;
 
     /**
+     * Reads .jpg file named "zdj.jpg" and starts processing it. Final
+     * version will be named "final.jpg". Depending on how big was original 
+     * image process might take from several seconds to few minutes. If the 
+     * input image was well compressed, the process might not work properly
+     * (it's TODO).
+     * 
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException {
+        //TODO: file chooser
         File imageBefore = new File("zdj.jpg");
         long sizeBefore = imageBefore.length();
 
-        int numberOfClusters = 16;
+        int numberOfClusters = 16; // In other words: number of colors
         //TODO: clean code
         //TODO: write comments
         pixelsList = new ArrayList<>();
@@ -69,6 +76,10 @@ public class Main {
             }
         }
 
+        /**
+         * Every time image is being optimized, new file is created. This
+         * shows whole process how the image was optimized.
+         */
         int i = 0;
         while (clusterNotSameAsBefore()) {
             img = changeValuesOnImage(img);

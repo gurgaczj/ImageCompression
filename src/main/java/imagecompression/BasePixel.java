@@ -2,6 +2,9 @@ package imagecompression;
 
 import java.util.Objects;
 
+/**
+ * @author Jakub Gurgacz
+ */
 public class BasePixel {
 
     private int alpha;

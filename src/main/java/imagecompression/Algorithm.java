@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * @author Jakub Gurgacz
+ */
 public class Algorithm {
 
     private List<Pixel> pixelsList = new ArrayList<>();

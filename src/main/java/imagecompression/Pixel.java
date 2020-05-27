@@ -16,26 +16,21 @@
  */
 package imagecompression;
 
+import java.util.Objects;
+
 /**
  *
  * @author Jakub Gurgacz
  */
-public class Pixel {
-    
-    private int alpha;
-    private int red;
-    private int green;
-    private int blue;
+public class Pixel extends BasePixel {
+
     private ClusterCenter cluster;
     private ClusterCenter oldCluster;
     private int x;
     private int y;
 
     public Pixel(int alpha, int red, int green, int blue, int x, int y) {
-        this.alpha = alpha;
-        this.red = red;
-        this.green = green;
-        this.blue = blue;
+        super(alpha, red, green, blue);
         this.cluster = null;
         this.x = x;
         this.y = y;
@@ -44,10 +39,10 @@ public class Pixel {
     
     public void setValuesAsCluster(){
         try{
-        setAlpha(cluster.getA());
-        setRed(cluster.getX());
-        setGreen(cluster.getY());
-        setBlue(cluster.getZ());
+        setAlpha(cluster.getAlpha());
+        setRed(cluster.getRed());
+        setGreen(cluster.getGreen());
+        setBlue(cluster.getBlue());
         } catch (NullPointerException ex){
             ex.printStackTrace();
         }
@@ -86,38 +81,20 @@ public class Pixel {
         this.cluster = cluster;
     }
 
-    public int getAlpha() {
-        return alpha;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Pixel)) return false;
+        if (!super.equals(o)) return false;
+        Pixel pixel = (Pixel) o;
+        return x == pixel.x &&
+                y == pixel.y &&
+                cluster.equals(pixel.cluster) &&
+                Objects.equals(oldCluster, pixel.oldCluster);
     }
 
-    public void setAlpha(int alpha) {
-        this.alpha = alpha;
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), cluster, oldCluster, x, y);
     }
-
-    public int getRed() {
-        return red;
-    }
-
-    public void setRed(int red) {
-        this.red = red;
-    }
-
-    public int getGreen() {
-        return green;
-    }
-
-    public void setGreen(int green) {
-        this.green = green;
-    }
-
-    public int getBlue() {
-        return blue;
-    }
-
-    public void setBlue(int blue) {
-        this.blue = blue;
-    }
-    
-    
-    
 }

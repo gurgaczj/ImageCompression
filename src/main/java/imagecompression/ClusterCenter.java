@@ -20,104 +20,80 @@ package imagecompression;
  *
  * @author Jakub Gurgacz
  */
-public class ClusterCenter {
+public class ClusterCenter extends BasePixel {
     
-    private int a;
-    private int x;
-    private int y;
-    private int z;
-    private int oldA;
-    private int oldX;
-    private int oldY;
-    private int oldZ;
+    private int oldAlpha;
+    private int oldRed;
+    private int oldGreen;
+    private int oldBlue;
 
-    public ClusterCenter(int a, int x, int y, int z) {
-        this.a = a;
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.oldA = 0;
-        this.oldX = 0;
-        this.oldY = 0;
-        this.oldZ = 0;
+    public ClusterCenter(int alpha, int red, int green, int blue) {
+        super(alpha, red, green, blue);
+        this.oldAlpha = 0;
+        this.oldRed = 0;
+        this.oldGreen = 0;
+        this.oldBlue = 0;
     }
     
-    public void setValues(int x, int y, int z){
-        System.out.println("Stary klaster ("+getA()+", "+getX()+", "+getY()+", "+getZ()+")");
-        setX(x);
-        setY(y);
-        setZ(z);
-        System.out.println("Nowy klaster ("+getA()+", "+getX()+", "+getY()+", "+getZ()+")\n");
+    public void setValues(int red, int green, int blue){
+        setRed(red);
+        setGreen(green);
+        setBlue(blue);
     }
 
-    public int getOldA() {
-        return oldA;
+    public int getOldAlpha() {
+        return oldAlpha;
     }
 
-    public void setOldA(int oldA) {
-        
-        this.oldA = oldA;
+    public void setOldAlpha(int oldAlpha) {
+        this.oldAlpha = oldAlpha;
     }
 
-    public int getOldX() {
-        return oldX;
+    public int getOldRed() {
+        return oldRed;
     }
 
-    public void setOldX(int oldX) {
-        this.oldX = oldX;
+    public void setOldRed(int oldRed) {
+        this.oldRed = oldRed;
     }
 
-    public int getOldY() {
-        return oldY;
+    public int getOldGreen() {
+        return oldGreen;
     }
 
-    public void setOldY(int oldY) {
-        this.oldY = oldY;
+    public void setOldGreen(int oldGreen) {
+        this.oldGreen = oldGreen;
     }
 
-    public int getOldZ() {
-        return oldZ;
+    public int getOldBlue() {
+        return oldBlue;
     }
 
-    public void setOldZ(int oldZ) {
-        this.oldZ = oldZ;
+    public void setOldBlue(int oldBlue) {
+        this.oldBlue = oldBlue;
     }
 
-    public int getA() {
-        return a;
+    @Override
+    public void setAlpha(int alpha) {
+        setOldAlpha(getAlpha());
+        super.setAlpha(alpha);
     }
 
-    public void setA(int a) {
-        setOldA(this.a);
-        this.a = a;
+    @Override
+    public void setRed(int red) {
+        setOldRed(getRed());
+        super.setRed(red);
     }
 
-    public int getX() {
-        return x;
+    @Override
+    public void setGreen(int green) {
+        setOldGreen(getGreen());
+        super.setGreen(green);
     }
 
-    public void setX(int x) {
-        setOldX(this.x);
-        this.x = x;
+    @Override
+    public void setBlue(int blue) {
+        setOldBlue(getBlue());
+        super.setBlue(blue);
     }
-
-    public int getY() {
-        return y;
-    }
-
-    public void setY(int y) {
-        setOldY(this.y);
-        this.y = y;
-    }
-
-    public int getZ() {
-        return z;
-    }
-
-    public void setZ(int z) {
-        setOldZ(this.z);
-        this.z = z;
-    }
-    
-    
 }
